@@ -292,10 +292,10 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="6dp"
                                 android:layout_marginBottom="12dp"
-                                android:text="Pakai Meja"
+                                android:text="Pakai Kios"
+                                android:textColor="@color/white"
                                 android:textSize="18sp"
-                                android:textStyle="bold"
-                                android:textColor="@color/white"/>
+                                android:textStyle="bold" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
