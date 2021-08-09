@@ -1,9 +1,356 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".HistoryActivity">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="23dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            app:cardElevation="5dp"
+            app:cardCornerRadius="10dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingTop="20dp"
+                android:paddingBottom="20dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:text="Ringkasan Transaksi"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black"/>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="22dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    app:cardBackgroundColor="@color/orange"
+                    app:cardCornerRadius="10dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="14dp"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Bakulan"
+                                android:textSize="18sp"
+                                android:textColor="@color/white"
+                                android:textStyle="bold"/>
+
+                            <TextView
+                                android:id="@+id/tv_bakulan_price"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Rp 750"
+                                android:textSize="14sp"
+                                android:textColor="@color/white"/>
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tv_bakulan_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:text="Jumlah transaksi : 3"
+                            android:textSize="14sp"
+                            android:textColor="@color/white"/>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="5dp"
+                            android:layout_marginTop="9dp"
+                            android:background="@drawable/line"/>
+
+                        <TextView
+                            android:id="@+id/tv_bakulan_total"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="end"
+                            android:layout_marginTop="11dp"
+                            android:text="Total : Rp 2.250"
+                            android:textSize="18sp"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="22dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    app:cardBackgroundColor="@color/blue"
+                    app:cardCornerRadius="10dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="14dp"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Pakai Meja"
+                                android:textSize="18sp"
+                                android:textColor="@color/white"
+                                android:textStyle="bold"/>
+
+                            <TextView
+                                android:id="@+id/tv_pakai_meja_price"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Rp 750"
+                                android:textSize="14sp"
+                                android:textColor="@color/white"/>
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tv_pakai_meja_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:text="Jumlah transaksi : 3"
+                            android:textSize="14sp"
+                            android:textColor="@color/white"/>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="5dp"
+                            android:layout_marginTop="9dp"
+                            android:background="@drawable/line"/>
+
+                        <TextView
+                            android:id="@+id/tv_pakai_meja_total"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="end"
+                            android:layout_marginTop="11dp"
+                            android:text="Total : Rp 2.250"
+                            android:textSize="18sp"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="22dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    app:cardBackgroundColor="@color/green"
+                    app:cardCornerRadius="10dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="14dp"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Pakai Kios"
+                                android:textSize="18sp"
+                                android:textColor="@color/white"
+                                android:textStyle="bold"/>
+
+                            <TextView
+                                android:id="@+id/tv_pakai_kios_price"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Rp 750"
+                                android:textSize="14sp"
+                                android:textColor="@color/white"/>
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tv_pakai_kios_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:text="Jumlah transaksi : 3"
+                            android:textSize="14sp"
+                            android:textColor="@color/white"/>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="5dp"
+                            android:layout_marginTop="9dp"
+                            android:background="@drawable/line"/>
+
+                        <TextView
+                            android:id="@+id/tv_pakai_kios_total"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="end"
+                            android:layout_marginTop="11dp"
+                            android:text="Total : Rp 2.250"
+                            android:textSize="18sp"
+                            android:textColor="@color/white"
+                            android:textStyle="bold"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tf_total_keseluruhan"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginTop="20dp"
+                    android:hint="Total keseluruhan"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_total_keseluruhan"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:enabled="false"
+                        />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tf_jumlah_disetor"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="16dp"
+                        android:hint="Jumlah disetor"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/et_jumlah_disetor"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="number"
+                            />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_update"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_marginEnd="16dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginTop="4dp"
+                        android:layout_gravity="bottom"
+                        android:text="Update"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textAllCaps="false"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        app:cornerRadius="5dp"
+                        app:backgroundTint="@color/red"/>
+                </LinearLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tf_selisih"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginTop="10dp"
+                    android:hint="Selisih"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_selisih"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:enabled="false"
+                        />
+
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_export_excel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="15dp"
+            android:text="Export Excel"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textAllCaps="false"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            app:cornerRadius="5dp"
+            app:backgroundTint="@color/red"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_reset"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="30dp"
+            android:text="Reset"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textAllCaps="false"
+            android:textColor="@color/red"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            app:cornerRadius="5dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/red"
+            app:backgroundTint="@color/white"/>
+    </LinearLayout>
+</ScrollView>
