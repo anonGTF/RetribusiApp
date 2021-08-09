@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "199757014786",
+    "project_id": "pro-system-mobile",
+    "storage_bucket": "pro-system-mobile.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:199757014786:android:26dc8e2cf7f55d0bd7c41b",
+        "android_client_info": {
+          "package_name": "id.ptkpn.retribusiapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "199757014786-ls67rcr0i7lo04i0768ufgqvc1tg4a7k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCGIyt2fhYBdtHeSN84f4KRhfzvZLugphI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "199757014786-ls67rcr0i7lo04i0768ufgqvc1tg4a7k.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
