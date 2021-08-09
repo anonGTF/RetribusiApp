@@ -1,33 +1,33 @@
 {
   "project_info": {
-    "project_number": "199757014786",
-    "project_id": "pro-system-mobile",
-    "storage_bucket": "pro-system-mobile.appspot.com"
+    "project_number": "144005447399",
+    "project_id": "pro-systeam-mobile",
+    "storage_bucket": "pro-systeam-mobile.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:199757014786:android:26dc8e2cf7f55d0bd7c41b",
+        "mobilesdk_app_id": "1:144005447399:android:95977f6fdd0083c1d02c42",
         "android_client_info": {
           "package_name": "id.ptkpn.retribusiapp"
         }
       },
       "oauth_client": [
         {
-          "client_id": "199757014786-ls67rcr0i7lo04i0768ufgqvc1tg4a7k.apps.googleusercontent.com",
+          "client_id": "144005447399-a4lpc5mv4roma0efrmi5isae86jp0gjk.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCGIyt2fhYBdtHeSN84f4KRhfzvZLugphI"
+          "current_key": "AIzaSyBo_ZtV8WgxNS5QQ7cgs1G0x2a4bD687EQ"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "199757014786-ls67rcr0i7lo04i0768ufgqvc1tg4a7k.apps.googleusercontent.com",
+              "client_id": "144005447399-a4lpc5mv4roma0efrmi5isae86jp0gjk.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
