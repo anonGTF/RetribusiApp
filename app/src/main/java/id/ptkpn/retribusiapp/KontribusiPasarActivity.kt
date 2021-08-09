@@ -1,11 +1,22 @@
 package id.ptkpn.retribusiapp
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import id.ptkpn.retribusiapp.databinding.ActivityKontribusiPasarBinding
 
 class KontribusiPasarActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityKontribusiPasarBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_kontribusi_pasar)
+        binding = ActivityKontribusiPasarBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        binding.btnHistory.setOnClickListener {
+            intent = Intent(this, HistoryActivity::class.java)
+            startActivity(intent)
+        }
     }
 }
