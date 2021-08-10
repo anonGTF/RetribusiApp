@@ -1,16 +1,14 @@
-package id.ptkpn.retribusiapp
+package id.ptkpn.retribusiapp.ui.login
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import id.ptkpn.retribusiapp.databinding.ActivityKontribusiPasarBinding
 import id.ptkpn.retribusiapp.databinding.ActivityLoginBinding
+import id.ptkpn.retribusiapp.ui.mainmenu.MainMenuActivity
 
 class LoginActivity : AppCompatActivity() {
 

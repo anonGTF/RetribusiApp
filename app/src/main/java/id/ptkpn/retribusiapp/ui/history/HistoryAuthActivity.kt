@@ -1,11 +1,9 @@
-package id.ptkpn.retribusiapp
+package id.ptkpn.retribusiapp.ui.history
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import id.ptkpn.retribusiapp.databinding.ActivityHistoryAuthBinding
-import id.ptkpn.retribusiapp.databinding.ActivityHistoryBinding
-import id.ptkpn.retribusiapp.databinding.ActivityKontribusiPasarBinding
 
 class HistoryAuthActivity : AppCompatActivity() {
 
