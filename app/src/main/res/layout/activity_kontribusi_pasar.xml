@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    tools:context=".KontribusiPasarActivity">
+    tools:context=".ui.kontribusipasar.KontribusiPasarActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -66,7 +66,7 @@
                         android:id="@+id/count_bakulan"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="100x"
+                        android:text="0x"
                         android:textSize="24sp"
                         android:textStyle="bold"
                         android:textColor="@color/black" />
@@ -106,7 +106,7 @@
                         android:id="@+id/count_pakai_meja"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="30x"
+                        android:text="0x"
                         android:textSize="24sp"
                         android:textStyle="bold"
                         android:textColor="@color/black" />
@@ -146,7 +146,7 @@
                         android:id="@+id/count_pakai_kios"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="12x"
+                        android:text="0x"
                         android:textSize="24sp"
                         android:textStyle="bold"
                         android:textColor="@color/black" />
@@ -180,7 +180,7 @@
                         android:id="@+id/count_total"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="142x"
+                        android:text="0x"
                         android:textSize="24sp"
                         android:textStyle="bold"
                         android:textColor="@color/black" />
