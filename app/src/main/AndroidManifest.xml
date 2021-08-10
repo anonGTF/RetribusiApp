@@ -12,18 +12,22 @@
         android:theme="@style/Theme.RetribusiApp"
         tools:replace="android:theme">
         <activity
-            android:name=".ui.mainmenu.MainMenuActivity"
+            android:name=".MainMenuActivity"
             android:exported="true" />
         <activity
-            android:name=".ui.history.HistoryAuthActivity"
+            android:name=".HistoryAuthActivity"
+            android:exported="true" />
+        <activity
+            android:name=".LoginActivity"
             android:exported="true" />
         <activity
             android:name=".ui.login.LoginActivity"
-            android:exported="true" />
-        <activity android:name=".ui.history.HistoryActivity" />
-        <activity android:name=".ui.kontribusipasar.KontribusiPasarActivity" />
+            android:exported="true"
+            android:label="@string/title_activity_login" />
+        <activity android:name=".HistoryActivity" />
+        <activity android:name=".KontribusiPasarActivity" />
         <activity
-            android:name=".ui.splash.SplashActivity"
+            android:name=".SplashActivity"
             android:theme="@style/splashScreenStyle">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -31,6 +35,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".MainActivity" />
     </application>
 
 </manifest>

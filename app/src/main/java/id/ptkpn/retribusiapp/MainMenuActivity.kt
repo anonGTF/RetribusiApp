@@ -1,10 +1,11 @@
-package id.ptkpn.retribusiapp.ui.mainmenu
+package id.ptkpn.retribusiapp
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import id.ptkpn.retribusiapp.databinding.ActivityKontribusiPasarBinding
+import id.ptkpn.retribusiapp.databinding.ActivityLoginBinding
 import id.ptkpn.retribusiapp.databinding.ActivityMainMenuBinding
-import id.ptkpn.retribusiapp.ui.kontribusipasar.KontribusiPasarActivity
 
 class MainMenuActivity : AppCompatActivity() {
 
