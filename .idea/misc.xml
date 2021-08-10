@@ -3,16 +3,16 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/Project Coding/RetribusiApp/app/src/main/res/layout/activity_history.xml" value="0.4" />
-        <entry key="..\:/Project Coding/RetribusiApp/app/src/main/res/layout/activity_history_auth.xml" value="0.4" />
+        <entry key="..\:/Project Coding/RetribusiApp/app/src/main/res/layout/activity_history.xml" value="0.264" />
+        <entry key="..\:/Project Coding/RetribusiApp/app/src/main/res/layout/activity_history_auth.xml" value="0.264" />
         <entry key="..\:/Project Coding/RetribusiApp/app/src/main/res/layout/activity_kontribusi_pasar.xml" value="0.4" />
-        <entry key="..\:/Project Coding/RetribusiApp/app/src/main/res/layout/activity_login.xml" value="0.176" />
+        <entry key="..\:/Project Coding/RetribusiApp/app/src/main/res/layout/activity_login.xml" value="0.2" />
         <entry key="..\:/Project Coding/RetribusiApp/app/src/main/res/layout/activity_main.xml" value="0.13385416666666666" />
         <entry key="..\:/Project Coding/RetribusiApp/app/src/main/res/layout/activity_main_menu.xml" value="0.2" />
       </map>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">
