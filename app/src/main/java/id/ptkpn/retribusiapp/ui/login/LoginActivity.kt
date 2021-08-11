@@ -1,19 +1,26 @@
 package id.ptkpn.retribusiapp.ui.login
 
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import id.ptkpn.retribusiapp.databinding.ActivityLoginBinding
 import id.ptkpn.retribusiapp.ui.mainmenu.MainMenuActivity
+import id.ptkpn.retribusiapp.utils.JENIS_PEDAGANG
+import id.ptkpn.retribusiapp.utils.NAMA_JENIS
+import id.ptkpn.retribusiapp.utils.PREF_KEY
+import id.ptkpn.retribusiapp.utils.TARIF
 
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
     private val auth = Firebase.auth
+    private val db = Firebase.firestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,8 +41,7 @@ class LoginActivity : AppCompatActivity() {
 
         if (username.isNotBlank() && password.isNotBlank()) {
             auth.signInWithEmailAndPassword(email, password).addOnSuccessListener {
-                intent = Intent(this, MainMenuActivity::class.java)
-                startActivity(intent)
+                getNewewstPrice()
             } .addOnFailureListener {
                 showErrorMessage(it.localizedMessage ?: "unknown error")
             } .addOnCompleteListener {
@@ -43,6 +49,28 @@ class LoginActivity : AppCompatActivity() {
             }
         } else {
             showErrorMessage("username dan password tidak boleh kosong")
+        }
+    }
+
+    private fun getNewewstPrice() {
+        db.collection(JENIS_PEDAGANG).get().addOnSuccessListener {
+            val sharedPref = getSharedPreferences(PREF_KEY, Context.MODE_PRIVATE)
+            it.documents.forEach { doc ->
+                val namaJenis = doc.data?.get(NAMA_JENIS).toString()
+                val tarif = doc.data?.get(TARIF).toString().toInt()
+
+                with(sharedPref.edit()) {
+                    putInt(namaJenis, tarif)
+                    apply()
+                }
+            }
+
+            intent = Intent(this, MainMenuActivity::class.java)
+            startActivity(intent)
+        } .addOnFailureListener {
+            showErrorMessage(it.localizedMessage ?: "unknown error")
+        } .addOnCompleteListener {
+            hideLoadingState()
         }
     }
 

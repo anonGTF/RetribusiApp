@@ -1,5 +1,6 @@
 package id.ptkpn.retribusiapp.utils
 
+import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -11,5 +12,11 @@ object Utils {
 
     fun getCurrentDateTime(): Date {
         return Calendar.getInstance().time
+    }
+
+    fun formatPrice(price: Int): String {
+        return NumberFormat.getNumberInstance(Locale.US)
+            .format(price)
+            .replace(",", ".")
     }
 }

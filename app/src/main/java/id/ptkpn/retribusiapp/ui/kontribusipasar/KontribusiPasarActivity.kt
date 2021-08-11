@@ -3,16 +3,15 @@ package id.ptkpn.retribusiapp.ui.kontribusipasar
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.ViewModelProvider
 import id.ptkpn.retribusiapp.databinding.ActivityKontribusiPasarBinding
 import id.ptkpn.retribusiapp.localdb.Transaksi
 import id.ptkpn.retribusiapp.ui.history.HistoryAuthActivity
-import id.ptkpn.retribusiapp.utils.BAKULAN
-import id.ptkpn.retribusiapp.utils.PAKAI_KIOS
-import id.ptkpn.retribusiapp.utils.PAKAI_MEJA
+import id.ptkpn.retribusiapp.utils.*
 import id.ptkpn.retribusiapp.utils.Utils.getCurrentDateTime
 import id.ptkpn.retribusiapp.utils.Utils.toString
-import id.ptkpn.retribusiapp.utils.ViewModelFactory
 
 class KontribusiPasarActivity : AppCompatActivity() {
 
@@ -50,12 +49,17 @@ class KontribusiPasarActivity : AppCompatActivity() {
     private fun insertTransaksi(type: String) {
         val tanggal = getCurrentDateTime().toString("dd/MM/yyyy")
         val waktu = getCurrentDateTime().toString("HH:mm:ss")
+        val tarif = getSharedPreferences(PREF_KEY, MODE_PRIVATE).getInt(type, 0)
         val transaksi = Transaksi(
             jenisPedagang = type,
-            jumlahBayar = 750,
+            jumlahBayar = tarif,
             tanggal = tanggal,
             waktu = waktu
         )
+
+        Log.d("coba", "insertTransaksi: " +
+                "${transaksi.jenisPedagang} ${transaksi.jumlahBayar} " +
+                "${transaksi.tanggal} ${transaksi.waktu}")
         viewModel.insertTransaksi(transaksi)
     }
 
