@@ -5,6 +5,8 @@ const val PAKAI_MEJA = "pakai_meja"
 const val PAKAI_KIOS = "pakai_kios"
 
 const val PREF_KEY = "id.ptkpn.retribusiapp.PREFERENCE_KEY"
+const val TRANSAKSI_DB = "transaksi.db"
+const val TRANSAKSI_TABLE = "transaksi"
 
 const val JENIS_PEDAGANG = "jenis_pedagang"
 const val JUMLAH_BAYAR = "jumlah_bayar"

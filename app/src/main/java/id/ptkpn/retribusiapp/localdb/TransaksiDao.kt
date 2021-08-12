@@ -9,7 +9,7 @@ import androidx.room.Query
 @Dao
 interface TransaksiDao {
 
-    @Query("SELECT * FROM transaksi")
+    @Query("SELECT * FROM transaksi ORDER BY waktu")
     fun getAllTransaksi(): LiveData<List<Transaksi>>
 
     @Query("SELECT COUNT(id) FROM transaksi WHERE jenisPedagang = :type ")

@@ -1,22 +1,26 @@
 package id.ptkpn.retribusiapp.ui.kontribusipasar
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import com.dantsu.escposprinter.EscPosPrinter
+import com.dantsu.escposprinter.connection.bluetooth.BluetoothPrintersConnections
 import id.ptkpn.retribusiapp.databinding.ActivityKontribusiPasarBinding
 import id.ptkpn.retribusiapp.localdb.Transaksi
 import id.ptkpn.retribusiapp.ui.history.HistoryAuthActivity
 import id.ptkpn.retribusiapp.utils.*
+import id.ptkpn.retribusiapp.utils.PrintUtils.getPrintText
 import id.ptkpn.retribusiapp.utils.Utils.getCurrentDateTime
 import id.ptkpn.retribusiapp.utils.Utils.toString
+
 
 class KontribusiPasarActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityKontribusiPasarBinding
     private lateinit var viewModel: KontribusiPasarViewModel
+    private lateinit var printer: EscPosPrinter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,6 +29,11 @@ class KontribusiPasarActivity : AppCompatActivity() {
 
         val factory = ViewModelFactory.getInstance(this)
         viewModel = ViewModelProvider(this, factory).get(KontribusiPasarViewModel::class.java)
+        printer = EscPosPrinter(
+            BluetoothPrintersConnections.selectFirstPaired(),
+            203,
+            58f,
+            48)
 
         observeCount()
 
@@ -48,6 +57,7 @@ class KontribusiPasarActivity : AppCompatActivity() {
 
     private fun insertTransaksi(type: String) {
         val tanggal = getCurrentDateTime().toString("dd/MM/yyyy")
+        val tanggalPrint = tanggal.replace("/", "-")
         val waktu = getCurrentDateTime().toString("HH:mm:ss")
         val tarif = getSharedPreferences(PREF_KEY, MODE_PRIVATE).getInt(type, 0)
         val transaksi = Transaksi(
@@ -57,10 +67,14 @@ class KontribusiPasarActivity : AppCompatActivity() {
             waktu = waktu
         )
 
-        Log.d("coba", "insertTransaksi: " +
-                "${transaksi.jenisPedagang} ${transaksi.jumlahBayar} " +
-                "${transaksi.tanggal} ${transaksi.waktu}")
+        Log.d(
+            "coba", "insertTransaksi: " +
+                    "${transaksi.jenisPedagang} ${transaksi.jumlahBayar} " +
+                    "${transaksi.tanggal} ${transaksi.waktu}"
+        )
         viewModel.insertTransaksi(transaksi)
+
+        printer.printFormattedText(getPrintText(printer, this.applicationContext, tarif, tanggalPrint))
     }
 
     private fun observeCount() {
