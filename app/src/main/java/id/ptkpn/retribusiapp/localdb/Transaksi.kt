@@ -3,9 +3,10 @@ package id.ptkpn.retribusiapp.localdb
 import androidx.annotation.NonNull
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import id.ptkpn.retribusiapp.utils.TRANSAKSI_TABLE
 
 @Entity(
-    tableName = "transaksi"
+    tableName = TRANSAKSI_TABLE
 )
 data class Transaksi(
 

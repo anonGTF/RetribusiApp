@@ -4,6 +4,7 @@ import androidx.room.RoomDatabase
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
+import id.ptkpn.retribusiapp.utils.TRANSAKSI_DB
 
 @Database(
     entities = [Transaksi::class],
@@ -23,7 +24,7 @@ abstract class TransaksiDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     TransaksiDatabase::class.java,
-                    "transaksi.db"
+                    TRANSAKSI_DB
                 ).build()
                 INSTANCE = instance
                 instance

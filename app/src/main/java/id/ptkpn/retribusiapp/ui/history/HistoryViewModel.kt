@@ -7,7 +7,7 @@ import id.ptkpn.retribusiapp.utils.PAKAI_KIOS
 import id.ptkpn.retribusiapp.utils.PAKAI_MEJA
 
 class HistoryViewModel(
-    val transaksiRepository: TransaksiRepository
+    private val transaksiRepository: TransaksiRepository
 ): ViewModel() {
 
     fun getAllTransaksi() = transaksiRepository.getAllTransaksi()
