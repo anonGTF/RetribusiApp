@@ -1,12 +1,13 @@
 package id.ptkpn.retribusiapp.ui.history
 
-import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModelProvider
-import com.github.doyaaaaaken.kotlincsv.dsl.csvReader
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
@@ -14,17 +15,13 @@ import com.google.firebase.ktx.Firebase
 import id.ptkpn.retribusiapp.databinding.ActivityHistoryBinding
 import id.ptkpn.retribusiapp.utils.*
 import id.ptkpn.retribusiapp.utils.FileUtils.generateFile
-import id.ptkpn.retribusiapp.utils.FileUtils.goToFileIntent
 import id.ptkpn.retribusiapp.utils.Utils.formatPrice
 import id.ptkpn.retribusiapp.utils.Utils.getCurrentDateTime
 import id.ptkpn.retribusiapp.utils.Utils.toString
-import net.lingala.zip4j.ZipFile
-import net.lingala.zip4j.model.ZipParameters
 import net.lingala.zip4j.model.enums.AesKeyStrength
 import net.lingala.zip4j.model.enums.CompressionMethod
 import net.lingala.zip4j.model.enums.EncryptionMethod
 import java.io.File
-import java.lang.Exception
 import java.util.*
 
 
@@ -49,10 +46,10 @@ class HistoryActivity : AppCompatActivity() {
         populateRingkasan()
 
         binding.etJumlahDisetor.addTextChangedListener(
-            MyTextWatcher(
-                binding.etSelisih,
-                binding.etTotalKeseluruhan
-            )
+                MyTextWatcher(
+                        binding.etSelisih,
+                        binding.etTotalKeseluruhan
+                )
         )
 
         binding.btnUpdate.setOnClickListener {
@@ -87,12 +84,12 @@ class HistoryActivity : AppCompatActivity() {
                     // Data
                     transaksiList.forEachIndexed { index, transaksi ->
                         val data = listOf(
-                            index + 1,
-                            transaksi.tanggal,
-                            transaksi.waktu,
-                            userName,
-                            transaksi.jenisPedagang,
-                            transaksi.jumlahBayar
+                                index + 1,
+                                transaksi.tanggal,
+                                transaksi.waktu,
+                                userName,
+                                transaksi.jenisPedagang,
+                                transaksi.jumlahBayar
                         )
                         writeRow(data)
                     }
@@ -117,11 +114,32 @@ class HistoryActivity : AppCompatActivity() {
                     AesKeyStrength.KEY_STRENGTH_256
             )
             showMessage("file encrypted")
-            val intent = goToFileIntent(this@HistoryActivity, zipFile)
-            startActivity(intent)
+            sendToWhatsapp(zipFile)
         } catch (e: Exception) {
             showMessage(e.localizedMessage ?: "unknown error")
         }
+    }
+
+    private fun sendToWhatsapp(zipFile: File) {
+        val fileUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            FileProvider.getUriForFile(
+                    this,
+                    "${packageName}.fileprovider",
+                    zipFile
+            )
+        } else {
+            Uri.fromFile(zipFile)
+        }
+        val number = "6285746156526"
+        val sendIntent = Intent()
+        sendIntent.action = Intent.ACTION_SEND
+        sendIntent.type = "application/*"
+        sendIntent.putExtra("jid", "$number@s.whatsapp.net")
+        sendIntent.putExtra(Intent.EXTRA_STREAM, fileUri)
+        sendIntent.setPackage("com.whatsapp")
+        sendIntent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+
+        startActivity(sendIntent)
     }
 
     private fun uploadTransaksiData() {
@@ -131,23 +149,23 @@ class HistoryActivity : AppCompatActivity() {
         val selisih = binding.etSelisih.text.toString().replace(".", "").toInt()
         if (userId != null && jumlahDisetor.isNotBlank()) {
             val docData = hashMapOf(
-                JUMLAH_BAKULAN to jumlahBakulan,
-                JUMLAH_PAKAI_MEJA to jumlahPakaiMeja,
-                JUMLAH_PAKAI_KIOS to jumlahPakaiKios,
-                JUMLAH_DISETOR to jumlahDisetor.toInt(),
-                TOTAL_KESELURUHAN to totalKeseluruhan,
-                SELISIH to selisih,
-                USER_ID to userId
+                    JUMLAH_BAKULAN to jumlahBakulan,
+                    JUMLAH_PAKAI_MEJA to jumlahPakaiMeja,
+                    JUMLAH_PAKAI_KIOS to jumlahPakaiKios,
+                    JUMLAH_DISETOR to jumlahDisetor.toInt(),
+                    TOTAL_KESELURUHAN to totalKeseluruhan,
+                    SELISIH to selisih,
+                    USER_ID to userId
             )
 
             db.collection(TRANSAKSI).add(docData).addOnSuccessListener { doc ->
                 viewModel.getAllTransaksi().observe(this@HistoryActivity, { listTransaction ->
                     listTransaction.forEach { transaksi ->
                         val transaksiData = hashMapOf(
-                            JENIS_PEDAGANG to transaksi.jenisPedagang,
-                            JUMLAH_BAYAR to transaksi.jumlahBayar,
-                            TANGGAL to transaksi.tanggal,
-                            WAKTU to transaksi.waktu
+                                JENIS_PEDAGANG to transaksi.jenisPedagang,
+                                JUMLAH_BAYAR to transaksi.jumlahBayar,
+                                TANGGAL to transaksi.tanggal,
+                                WAKTU to transaksi.waktu
                         )
                         doc.collection(DETAIL_TRANSAKSI).add(transaksiData)
                     }
