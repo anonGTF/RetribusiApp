@@ -17,6 +17,8 @@ import id.ptkpn.retribusiapp.utils.*
 import id.ptkpn.retribusiapp.utils.PrintUtils.getPrintText
 import id.ptkpn.retribusiapp.utils.Utils.getCurrentDateTime
 import id.ptkpn.retribusiapp.utils.Utils.toString
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 
 
 class KontribusiPasarActivity : AppCompatActivity() {
@@ -32,7 +34,11 @@ class KontribusiPasarActivity : AppCompatActivity() {
 
         val factory = ViewModelFactory.getInstance(this)
         viewModel = ViewModelProvider(this, factory).get(KontribusiPasarViewModel::class.java)
-
+        printer = EscPosPrinter(
+            BluetoothPrintersConnections.selectFirstPaired(),
+            203,
+            58f,
+            38)
         observeCount()
 
         binding.cetakBakulan.setOnClickListener {
@@ -70,15 +76,21 @@ class KontribusiPasarActivity : AppCompatActivity() {
                     "${transaksi.jenisPedagang} ${transaksi.jumlahBayar} " +
                     "${transaksi.tanggal} ${transaksi.waktu}"
         )
-        viewModel.insertTransaksi(transaksi)
 
-        val printer = getAsyncEscPosPrinter(BluetoothPrintersConnections.selectFirstPaired())
-        printer.textToPrint = getPrintText(printer, this.applicationContext, tarif, tanggalPrint)
-        AsyncBluetoothEscPosPrint(this).execute(printer)
-    }
+        val job = MainScope().launch {
+            printer.printFormattedText(getPrintText(printer, applicationContext, tarif, tanggalPrint))
+        }
 
-    private fun getAsyncEscPosPrinter(connection: DeviceConnection?): AsyncEscPosPrinter {
-        return AsyncEscPosPrinter(connection, 203, 58f, 38)
+        if (job.isCompleted) {
+            viewModel.insertTransaksi(transaksi)
+        }
+//        val printer = AsyncEscPosPrinter(
+//            BluetoothPrintersConnections.selectFirstPaired(),
+//            203,
+//            58f,
+//            38)
+//        printer.textToPrint = getPrintText(printer, this.applicationContext, tarif, tanggalPrint)
+//        AsyncBluetoothEscPosPrint(this).execute(printer)
     }
 
     private fun observeCount() {
