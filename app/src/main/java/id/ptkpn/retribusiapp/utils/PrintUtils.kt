@@ -5,10 +5,11 @@ import android.util.DisplayMetrics
 import com.dantsu.escposprinter.EscPosPrinter
 import com.dantsu.escposprinter.textparser.PrinterTextParserImg
 import id.ptkpn.retribusiapp.R
+import id.ptkpn.retribusiapp.bluetooth.AsyncEscPosPrinter
 
 object PrintUtils {
 
-    fun getPrintText(printer: EscPosPrinter, context: Context, price: Int, date: String): String {
+    fun getPrintText(printer: AsyncEscPosPrinter, context: Context, price: Int, date: String): String {
         return "[C]<img>" + PrinterTextParserImg.bitmapToHexadecimalString(printer, context.resources.getDrawableForDensity(
             R.drawable.print_logo, DisplayMetrics.DENSITY_MEDIUM))+"</img>\n" +
                 "[C]<b>PRO System</b>\n" +

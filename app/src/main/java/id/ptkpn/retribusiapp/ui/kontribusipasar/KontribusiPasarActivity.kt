@@ -6,7 +6,10 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.dantsu.escposprinter.EscPosPrinter
+import com.dantsu.escposprinter.connection.DeviceConnection
 import com.dantsu.escposprinter.connection.bluetooth.BluetoothPrintersConnections
+import id.ptkpn.retribusiapp.bluetooth.AsyncBluetoothEscPosPrint
+import id.ptkpn.retribusiapp.bluetooth.AsyncEscPosPrinter
 import id.ptkpn.retribusiapp.databinding.ActivityKontribusiPasarBinding
 import id.ptkpn.retribusiapp.localdb.Transaksi
 import id.ptkpn.retribusiapp.ui.history.HistoryAuthActivity
@@ -29,11 +32,6 @@ class KontribusiPasarActivity : AppCompatActivity() {
 
         val factory = ViewModelFactory.getInstance(this)
         viewModel = ViewModelProvider(this, factory).get(KontribusiPasarViewModel::class.java)
-        printer = EscPosPrinter(
-            BluetoothPrintersConnections.selectFirstPaired(),
-            203,
-            58f,
-            48)
 
         observeCount()
 
@@ -74,7 +72,13 @@ class KontribusiPasarActivity : AppCompatActivity() {
         )
         viewModel.insertTransaksi(transaksi)
 
-        printer.printFormattedText(getPrintText(printer, this.applicationContext, tarif, tanggalPrint))
+        val printer = getAsyncEscPosPrinter(BluetoothPrintersConnections.selectFirstPaired())
+        printer.textToPrint = getPrintText(printer, this.applicationContext, tarif, tanggalPrint)
+        AsyncBluetoothEscPosPrint(this).execute(printer)
+    }
+
+    private fun getAsyncEscPosPrinter(connection: DeviceConnection?): AsyncEscPosPrinter {
+        return AsyncEscPosPrinter(connection, 203, 58f, 38)
     }
 
     private fun observeCount() {
