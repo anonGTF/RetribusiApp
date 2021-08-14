@@ -103,6 +103,7 @@ class KontribusiPasarActivity : AppCompatActivity() {
             printama.printTextlnWideBold(Printama.CENTER, "TGL : $tanggal")
             printama.addNewLine(1)
             printama.printTextlnWideTallBold(Printama.CENTER, "*RP.${tarif}*")
+            printama.addNewLine(1)
             printama.printTextlnBold(Printama.CENTER, "*Bukti Sah Pembayaran")
             printama.printTextlnBold(Printama.CENTER, "Retribusi Kebersihan Pasar*")
             printama.addNewLine(1)
