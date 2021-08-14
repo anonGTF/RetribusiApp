@@ -3,29 +3,25 @@ package id.ptkpn.retribusiapp.ui.kontribusipasar
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import com.dantsu.escposprinter.EscPosPrinter
-import com.dantsu.escposprinter.connection.DeviceConnection
-import com.dantsu.escposprinter.connection.bluetooth.BluetoothPrintersConnections
-import id.ptkpn.retribusiapp.bluetooth.AsyncBluetoothEscPosPrint
-import id.ptkpn.retribusiapp.bluetooth.AsyncEscPosPrinter
+import com.anggastudio.printama.Printama
+import id.ptkpn.retribusiapp.R
 import id.ptkpn.retribusiapp.databinding.ActivityKontribusiPasarBinding
 import id.ptkpn.retribusiapp.localdb.Transaksi
 import id.ptkpn.retribusiapp.ui.history.HistoryAuthActivity
 import id.ptkpn.retribusiapp.utils.*
-import id.ptkpn.retribusiapp.utils.PrintUtils.getPrintText
 import id.ptkpn.retribusiapp.utils.Utils.getCurrentDateTime
 import id.ptkpn.retribusiapp.utils.Utils.toString
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
 
 
 class KontribusiPasarActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityKontribusiPasarBinding
     private lateinit var viewModel: KontribusiPasarViewModel
-    private lateinit var printer: EscPosPrinter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,11 +30,6 @@ class KontribusiPasarActivity : AppCompatActivity() {
 
         val factory = ViewModelFactory.getInstance(this)
         viewModel = ViewModelProvider(this, factory).get(KontribusiPasarViewModel::class.java)
-        printer = EscPosPrinter(
-            BluetoothPrintersConnections.selectFirstPaired(),
-            203,
-            58f,
-            38)
         observeCount()
 
         binding.cetakBakulan.setOnClickListener {
@@ -53,9 +44,85 @@ class KontribusiPasarActivity : AppCompatActivity() {
             insertTransaksi(PAKAI_KIOS)
         }
 
+        binding.btnSelectPrinter.setOnClickListener{
+            showPrinterList()
+        }
+
+
+
         binding.btnHistory.setOnClickListener {
             intent = Intent(this, HistoryAuthActivity::class.java)
             startActivity(intent)
+        }
+
+        getSavedPrinter()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        val printerName = Printama.getPrinterResult(resultCode, requestCode, data);
+        showResult(printerName)
+    }
+
+    private fun getSavedPrinter() {
+        val connectedPrinter = Printama.with(this).connectedPrinter
+        if (connectedPrinter != null) {
+            val text = "Connected to : " + connectedPrinter.name
+            binding.btnSelectPrinter.text = text
+        }
+    }
+
+    private fun showPrinterList() {
+        Printama.showPrinterList(this, R.color.red) { printerName: String ->
+            Toast.makeText(this, printerName, Toast.LENGTH_SHORT).show()
+            val text = "Connected to : $printerName"
+            binding.btnSelectPrinter.text = text
+            if (!printerName.contains("failed")) {
+                binding.btnTestPrint.visibility = View.VISIBLE
+                binding.btnTestPrint.setOnClickListener { v: View? -> testPrinter() }
+            }
+        }
+    }
+
+    private fun testPrinter() {
+        Printama.with(this).printTest()
+    }
+
+    private fun printReceipt(tanggal: String, tarif: Int) {
+        val logo = Printama.getBitmapFromVector(this, R.drawable.print_logo)
+        Printama.with(this).connect({ printama: Printama ->
+            printama.printImage(logo, 256)
+            printama.addNewLine(1)
+            printama.setNormalText()
+            printama.printTextlnBold(Printama.CENTER, "PRO System")
+            printama.setSmallText()
+            printama.printTextln(Printama.CENTER, "Perbup Lombok Barat no 26 Tahun 2019")
+            printama.setNormalText()
+            printama.printTextlnBold(Printama.CENTER, "RETRIBUSI Kebersihan PASAR")
+            printama.addNewLine(1)
+            printama.printTextlnWideBold(Printama.CENTER, "TGL : $tanggal")
+            printama.addNewLine(1)
+            printama.printTextlnWideTallBold(Printama.CENTER, "*RP.${tarif}*")
+            printama.printTextlnBold(Printama.CENTER, "*Bukti Sah Pembayaran")
+            printama.printTextlnBold(Printama.CENTER, "Retribusi Kebersihan Pasar*")
+            printama.addNewLine(1)
+            printama.printDashedLine()
+            printama.addNewLine(2)
+            printama.close()
+        }) { message: String? -> showMessage(message) }
+    }
+
+    private fun showMessage(message: String?) {
+        Toast.makeText(this, message ?: "unknown error", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showResult(printerName: String) {
+        showMessage(printerName)
+        val text = "Connected to : $printerName"
+        binding.btnSelectPrinter.text = text
+        if (!printerName.contains("failed")) {
+            binding.btnTestPrint.visibility = View.VISIBLE
+            binding.btnTestPrint.setOnClickListener { v: View? -> testPrinter() }
         }
     }
 
@@ -77,20 +144,7 @@ class KontribusiPasarActivity : AppCompatActivity() {
                     "${transaksi.tanggal} ${transaksi.waktu}"
         )
 
-        val job = MainScope().launch {
-            printer.printFormattedText(getPrintText(printer, applicationContext, tarif, tanggalPrint))
-        }
-
-        if (job.isCompleted) {
-            viewModel.insertTransaksi(transaksi)
-        }
-//        val printer = AsyncEscPosPrinter(
-//            BluetoothPrintersConnections.selectFirstPaired(),
-//            203,
-//            58f,
-//            38)
-//        printer.textToPrint = getPrintText(printer, this.applicationContext, tarif, tanggalPrint)
-//        AsyncBluetoothEscPosPrint(this).execute(printer)
+        printReceipt(tanggalPrint, tarif)
     }
 
     private fun observeCount() {
