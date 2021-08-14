@@ -75,10 +75,10 @@ dependencies {
     implementation "androidx.room:room-ktx:2.3.0"
 
     // bluetooth
-    implementation 'com.github.DantSu:ESCPOS-ThermalPrinter-Android:3.0.0'
+    implementation 'com.github.anggastudio:Printama:0.9.5'
 
     // zip
-    implementation 'com.github.anggastudio:Printama:0.9.5'
+    implementation 'net.lingala.zip4j:zip4j:2.9.0'
 
     // csv
     implementation 'com.github.doyaaaaaken:kotlin-csv-jvm:0.15.2'

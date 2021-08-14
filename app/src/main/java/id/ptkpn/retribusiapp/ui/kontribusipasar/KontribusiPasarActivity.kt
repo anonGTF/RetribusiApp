@@ -145,6 +145,7 @@ class KontribusiPasarActivity : AppCompatActivity() {
         )
 
         printReceipt(tanggalPrint, tarif)
+        viewModel.insertTransaksi(transaksi)
     }
 
     private fun observeCount() {
