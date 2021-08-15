@@ -1,10 +1,11 @@
 package id.ptkpn.retribusiapp.ui.kontribusipasar
 
+import android.bluetooth.BluetoothDevice
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -22,6 +23,7 @@ class KontribusiPasarActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityKontribusiPasarBinding
     private lateinit var viewModel: KontribusiPasarViewModel
+    private var connectedPrinter: BluetoothDevice? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,8 +50,6 @@ class KontribusiPasarActivity : AppCompatActivity() {
             showPrinterList()
         }
 
-
-
         binding.btnHistory.setOnClickListener {
             intent = Intent(this, HistoryAuthActivity::class.java)
             startActivity(intent)
@@ -60,22 +60,35 @@ class KontribusiPasarActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        val printerName = Printama.getPrinterResult(resultCode, requestCode, data);
-        showResult(printerName)
+//        val printerName = Printama.getPrinterResult(resultCode, requestCode, data)
+        val name = Printama.with(this).connectedPrinter.alias ?: "default printer alias"
+        showResult(name)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        getSavedPrinter()
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        getSavedPrinter()
     }
 
     private fun getSavedPrinter() {
-        val connectedPrinter = Printama.with(this).connectedPrinter
+        connectedPrinter = Printama.with(this).connectedPrinter
         if (connectedPrinter != null) {
-            val text = "Connected to : " + connectedPrinter.name
+            Log.d("coba", "getSavedPrinter: ${connectedPrinter!!.alias}")
+            val text = "Connected to : " + connectedPrinter!!.alias
             binding.btnSelectPrinter.text = text
         }
     }
 
     private fun showPrinterList() {
         Printama.showPrinterList(this, R.color.red) { printerName: String ->
-            Toast.makeText(this, printerName, Toast.LENGTH_SHORT).show()
-            val text = "Connected to : $printerName"
+            val name = Printama.with(this).connectedPrinter.alias ?: "default printer alias"
+            Toast.makeText(this, name, Toast.LENGTH_SHORT).show()
+            val text = "Connected to : $name"
             binding.btnSelectPrinter.text = text
             if (!printerName.contains("failed")) {
                 binding.btnTestPrint.visibility = View.VISIBLE
@@ -88,29 +101,40 @@ class KontribusiPasarActivity : AppCompatActivity() {
         Printama.with(this).printTest()
     }
 
-    private fun printReceipt(tanggal: String, tarif: Int) {
-        val logo = Printama.getBitmapFromVector(this, R.drawable.print_logo)
-        Printama.with(this).connect({ printama: Printama ->
-            printama.printImage(logo, 256)
-            printama.addNewLine(1)
-            printama.setNormalText()
-            printama.printTextlnBold(Printama.CENTER, "PRO System")
-            printama.setSmallText()
-            printama.printTextln(Printama.CENTER, "Perbup Lombok Barat no 26 Tahun 2019")
-            printama.setNormalText()
-            printama.printTextlnBold(Printama.CENTER, "RETRIBUSI Kebersihan PASAR")
-            printama.addNewLine(1)
-            printama.printTextlnWideBold(Printama.CENTER, "TGL : $tanggal")
-            printama.addNewLine(1)
-            printama.printTextlnWideTallBold(Printama.CENTER, "*RP.${tarif}*")
-            printama.addNewLine(1)
-            printama.printTextlnBold(Printama.CENTER, "*Bukti Sah Pembayaran")
-            printama.printTextlnBold(Printama.CENTER, "Retribusi Kebersihan Pasar*")
-            printama.addNewLine(1)
-            printama.printDashedLine()
-            printama.addNewLine(2)
-            printama.close()
-        }) { message: String? -> showMessage(message) }
+    private fun printReceipt(tanggal: String, tarif: Int, transaksi: Transaksi) {
+        val logo = BitmapFactory.decodeResource(resources, R.drawable.print_logo)
+        if (connectedPrinter != null) {
+            Printama.with(this).connect({ printama: Printama ->
+                printama.printImage(logo, 256)
+                printama.addNewLine(1)
+                printama.setNormalText()
+                printama.printTextlnBold(Printama.CENTER, "PRO System")
+                printama.setSmallText()
+                printama.printTextln(Printama.CENTER, "Perbup Lombok Barat no 26 Tahun 2019")
+                printama.setNormalText()
+                printama.printTextlnBold(Printama.CENTER, "RETRIBUSI Kebersihan PASAR")
+                printama.addNewLine(1)
+                printama.printTextlnWideBold(Printama.CENTER, "TGL : $tanggal")
+                printama.addNewLine(1)
+                printama.printTextlnWideTallBold(Printama.CENTER, "*RP.${tarif}*")
+                printama.addNewLine(1)
+                printama.printTextlnBold(Printama.CENTER, "*Bukti Sah Pembayaran")
+                printama.printTextlnBold(Printama.CENTER, "Retribusi Kebersihan Pasar*")
+                printama.addNewLine(1)
+                printama.printDashedLine()
+                printama.addNewLine(2)
+                printama.close()
+
+                viewModel.insertTransaksi(transaksi)
+                Log.d(
+                    "coba", "insertTransaksi: " +
+                            "${transaksi.jenisPedagang} ${transaksi.jumlahBayar} " +
+                            "${transaksi.tanggal} ${transaksi.waktu}"
+                )
+            }) { message: String? -> showMessage(message) }
+        } else {
+            showMessage("Printer belum terhubung")
+        }
     }
 
     private fun showMessage(message: String?) {
@@ -139,14 +163,7 @@ class KontribusiPasarActivity : AppCompatActivity() {
             waktu = waktu
         )
 
-        Log.d(
-            "coba", "insertTransaksi: " +
-                    "${transaksi.jenisPedagang} ${transaksi.jumlahBayar} " +
-                    "${transaksi.tanggal} ${transaksi.waktu}"
-        )
-
-        printReceipt(tanggalPrint, tarif)
-        viewModel.insertTransaksi(transaksi)
+        printReceipt(tanggalPrint, tarif, transaksi)
     }
 
     private fun observeCount() {
