@@ -41,7 +41,7 @@ class LoginActivity : AppCompatActivity() {
 
         if (username.isNotBlank() && password.isNotBlank()) {
             auth.signInWithEmailAndPassword(email, password).addOnSuccessListener {
-                getNewewstPrice()
+                getNewestPrice()
             } .addOnFailureListener {
                 showErrorMessage(it.localizedMessage ?: "unknown error")
             } .addOnCompleteListener {
@@ -52,7 +52,7 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun getNewewstPrice() {
+    private fun getNewestPrice() {
         db.collection(JENIS_PEDAGANG).get().addOnSuccessListener {
             val sharedPref = getSharedPreferences(PREF_KEY, Context.MODE_PRIVATE)
             it.documents.forEach { doc ->

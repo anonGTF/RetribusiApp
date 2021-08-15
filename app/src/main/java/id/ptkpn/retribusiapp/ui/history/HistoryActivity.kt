@@ -4,6 +4,8 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
@@ -13,6 +15,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import id.ptkpn.retribusiapp.databinding.ActivityHistoryBinding
+import id.ptkpn.retribusiapp.ui.login.LoginActivity
 import id.ptkpn.retribusiapp.utils.*
 import id.ptkpn.retribusiapp.utils.FileUtils.generateFile
 import id.ptkpn.retribusiapp.utils.Utils.formatPrice
@@ -29,6 +32,9 @@ class HistoryActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityHistoryBinding
     private lateinit var viewModel: HistoryViewModel
+    private var isUploaded = false
+    private var isExported = false
+    private var isReset = false
     private var jumlahBakulan = 0
     private var jumlahPakaiMeja = 0
     private var jumlahPakaiKios = 0
@@ -61,44 +67,67 @@ class HistoryActivity : AppCompatActivity() {
         }
 
         binding.btnReset.setOnClickListener {
+            isReset = true
             binding.etTotalKeseluruhan.setText("")
             viewModel.deleteAllTransaksi()
+            auth.signOut()
+            isUploaded = false
+            isExported = false
+            intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
         }
     }
 
     private fun getFileName(format: String): String {
         val currDate = getCurrentDateTime().toString("dd_MM_yyyy")
-        val userName = auth.currentUser?.email?.split('@')?.get(0) ?: "penagih_default_name"
+        val userName = getSharedPreferences(PREF_KEY, MODE_PRIVATE).getString(JURU_TAGIH_NAME, "penagih_default_name")
         return "transaksi_${userName}_${currDate}.${format}"
     }
 
     private fun exportLocalDb() {
-        val userName = auth.currentUser?.email?.split('@')?.get(0) ?: "penagih_default_name"
-        val csvFile = generateFile(this, getFileName("csv"))
-        if (csvFile != null) {
-            viewModel.getAllTransaksi().observe(this@HistoryActivity, { transaksiList ->
-                csvWriter().open(csvFile, append = false) {
-                    // Header
-                    writeRow("sep=,")
-                    writeRow(listOf("NO", "TGL", "JAM", "USER NAME", "JENIS PEDAGANG", "JML BAYAR"))
-                    // Data
-                    transaksiList.forEachIndexed { index, transaksi ->
-                        val data = listOf(
-                                index + 1,
-                                transaksi.tanggal,
-                                transaksi.waktu,
-                                userName,
-                                transaksi.jenisPedagang,
-                                transaksi.jumlahBayar
-                        )
-                        writeRow(data)
+        if (isUploaded) {
+            val userName = getSharedPreferences(PREF_KEY, MODE_PRIVATE).getString(JURU_TAGIH_NAME, "penagih_default_name")
+            val csvFile = generateFile(this, getFileName("csv"))
+            if (csvFile != null) {
+                viewModel.getAllTransaksi().observe(this@HistoryActivity, { transaksiList ->
+                    if (!isReset) {
+                        Log.d("coba", "exportLocalDb: $isExported $isUploaded ${getCurrentDateTime().toString("HH:mm:ss")}")
+                        csvWriter().open(csvFile, append = false) {
+                            // Header
+                            writeRow("sep=,")
+                            writeRow(
+                                listOf(
+                                    "NO",
+                                    "TGL",
+                                    "JAM",
+                                    "USER NAME",
+                                    "JENIS PEDAGANG",
+                                    "JML BAYAR"
+                                )
+                            )
+                            // Data
+                            transaksiList.forEachIndexed { index, transaksi ->
+                                val data = listOf(
+                                    index + 1,
+                                    transaksi.tanggal,
+                                    transaksi.waktu,
+                                    userName,
+                                    transaksi.jenisPedagang,
+                                    transaksi.jumlahBayar
+                                )
+                                writeRow(data)
+                            }
+                            showMessage("CSV File has been generated")
+                            isExported = true
+                        }
+                        compressAndEncryptFile(csvFile)
                     }
-                    showMessage("CSV File has been generated")
-                }
-                compressAndEncryptFile(csvFile)
-            })
+                })
+            } else {
+                showMessage("CSV not generated")
+            }
         } else {
-            showMessage("CSV not generated")
+            showMessage("upload data terlebih dahulu")
         }
     }
 
@@ -143,11 +172,12 @@ class HistoryActivity : AppCompatActivity() {
     }
 
     private fun uploadTransaksiData() {
-        val userId = auth.currentUser?.uid
+        val userId = getSharedPreferences(PREF_KEY, MODE_PRIVATE).getString(JURU_TAGIH_ID, "penagih_default_id")
         val jumlahDisetor = binding.etJumlahDisetor.text.toString().replace(".", "")
         val totalKeseluruhan = binding.etTotalKeseluruhan.text.toString().replace(".", "").toInt()
         val selisih = binding.etSelisih.text.toString().replace(".", "").toInt()
         if (userId != null && jumlahDisetor.isNotBlank()) {
+            showLoadingState()
             val docData = hashMapOf(
                     JUMLAH_BAKULAN to jumlahBakulan,
                     JUMLAH_PAKAI_MEJA to jumlahPakaiMeja,
@@ -158,21 +188,43 @@ class HistoryActivity : AppCompatActivity() {
                     USER_ID to userId
             )
 
-            db.collection(TRANSAKSI).add(docData).addOnSuccessListener { doc ->
-                viewModel.getAllTransaksi().observe(this@HistoryActivity, { listTransaction ->
-                    listTransaction.forEach { transaksi ->
-                        val transaksiData = hashMapOf(
-                                JENIS_PEDAGANG to transaksi.jenisPedagang,
-                                JUMLAH_BAYAR to transaksi.jumlahBayar,
-                                TANGGAL to transaksi.tanggal,
-                                WAKTU to transaksi.waktu
-                        )
-                        doc.collection(DETAIL_TRANSAKSI).add(transaksiData)
+            if (!isUploaded) {
+                db.collection(TRANSAKSI).add(docData).addOnSuccessListener { doc ->
+                    val sharedPref = getSharedPreferences(PREF_KEY, MODE_PRIVATE)
+                    with(sharedPref.edit()) {
+                        putString(TRANSAKSI_ID, doc.id)
+                        apply()
                     }
+                    viewModel.getAllTransaksi().observe(this@HistoryActivity, { listTransaction ->
+                        if (!isReset) {
+                            listTransaction.forEach { transaksi ->
+                                val transaksiData = hashMapOf(
+                                    JENIS_PEDAGANG to transaksi.jenisPedagang,
+                                    JUMLAH_BAYAR to transaksi.jumlahBayar,
+                                    TANGGAL to transaksi.tanggal,
+                                    WAKTU to transaksi.waktu
+                                )
+                                doc.collection(DETAIL_TRANSAKSI).add(transaksiData)
+                            }
+                            showMessage("Upload data berhasil")
+                            isUploaded = true
+                        }
+                    })
+                } .addOnFailureListener {
+                    showMessage(it.localizedMessage ?: "unknown message")
+                } .addOnCompleteListener {
+                    hideLoadingState()
+                }
+            } else {
+                val transaksiId = getSharedPreferences(PREF_KEY, MODE_PRIVATE).getString(
+                    TRANSAKSI_ID, "transaksi_id") ?: "transaksi_id"
+                db.collection(TRANSAKSI).document(transaksiId).set(docData).addOnSuccessListener {
                     showMessage("Update data berhasil")
-                })
-            } .addOnFailureListener {
-                showMessage(it.localizedMessage ?: "unknown message")
+                } .addOnFailureListener {
+                    showMessage(it.localizedMessage ?: "unknown error")
+                } .addOnCompleteListener {
+                    hideLoadingState()
+                }
             }
         } else {
             showMessage("Jumlah disetor harus diisi")
@@ -239,5 +291,13 @@ class HistoryActivity : AppCompatActivity() {
 
     private fun showMessage(msg: String) {
         Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
+    }
+
+    private fun showLoadingState() {
+        binding.progressBar.visibility = View.VISIBLE
+    }
+
+    private fun hideLoadingState() {
+        binding.progressBar.visibility = View.INVISIBLE
     }
 }
