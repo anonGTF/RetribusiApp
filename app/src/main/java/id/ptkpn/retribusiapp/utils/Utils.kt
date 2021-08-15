@@ -19,4 +19,11 @@ object Utils {
             .format(price)
             .replace(",", ".")
     }
+
+    fun getTypeGoodName(type: String) = when (type) {
+        BAKULAN -> "Bakulan"
+        PAKAI_MEJA -> "Pakai Meja"
+        PAKAI_KIOS -> "Pakai Kios"
+        else -> "Other"
+    }
 }

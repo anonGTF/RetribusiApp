@@ -5,10 +5,13 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.anggastudio.printama.Printama
 import id.ptkpn.retribusiapp.R
 import id.ptkpn.retribusiapp.databinding.ActivityKontribusiPasarBinding
@@ -16,7 +19,10 @@ import id.ptkpn.retribusiapp.localdb.Transaksi
 import id.ptkpn.retribusiapp.ui.history.HistoryAuthActivity
 import id.ptkpn.retribusiapp.utils.*
 import id.ptkpn.retribusiapp.utils.Utils.getCurrentDateTime
+import id.ptkpn.retribusiapp.utils.Utils.getTypeGoodName
 import id.ptkpn.retribusiapp.utils.Utils.toString
+import kotlinx.coroutines.*
+import kotlinx.coroutines.withTimeoutOrNull
 
 
 class KontribusiPasarActivity : AppCompatActivity() {
@@ -29,6 +35,9 @@ class KontribusiPasarActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityKontribusiPasarBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        supportActionBar?.title = "Kontribusi Pasar"
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowHomeEnabled(true)
 
         val factory = ViewModelFactory.getInstance(this)
         viewModel = ViewModelProvider(this, factory).get(KontribusiPasarViewModel::class.java)
@@ -50,6 +59,10 @@ class KontribusiPasarActivity : AppCompatActivity() {
             showPrinterList()
         }
 
+        binding.btnTestPrint.setOnClickListener {
+            testPrinter()
+        }
+
         binding.btnHistory.setOnClickListener {
             intent = Intent(this, HistoryAuthActivity::class.java)
             startActivity(intent)
@@ -58,9 +71,18 @@ class KontribusiPasarActivity : AppCompatActivity() {
         getSavedPrinter()
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-//        val printerName = Printama.getPrinterResult(resultCode, requestCode, data)
         val name = Printama.with(this).connectedPrinter.alias ?: "default printer alias"
         showResult(name)
     }
@@ -86,7 +108,9 @@ class KontribusiPasarActivity : AppCompatActivity() {
 
     private fun showPrinterList() {
         Printama.showPrinterList(this, R.color.red) { printerName: String ->
-            val name = Printama.with(this).connectedPrinter.alias ?: "default printer alias"
+            val name = if (Printama.with(this).connectedPrinter != null)
+                Printama.with(this).connectedPrinter.alias
+            else printerName
             Toast.makeText(this, name, Toast.LENGTH_SHORT).show()
             val text = "Connected to : $name"
             binding.btnSelectPrinter.text = text
@@ -102,35 +126,40 @@ class KontribusiPasarActivity : AppCompatActivity() {
     }
 
     private fun printReceipt(tanggal: String, tarif: Int, transaksi: Transaksi) {
+        showLoadingState()
         val logo = BitmapFactory.decodeResource(resources, R.drawable.print_logo)
         if (connectedPrinter != null) {
-            Printama.with(this).connect({ printama: Printama ->
-                printama.printImage(logo, 256)
-                printama.addNewLine(1)
-                printama.setNormalText()
-                printama.printTextlnBold(Printama.CENTER, "PRO System")
-                printama.setSmallText()
-                printama.printTextln(Printama.CENTER, "Perbup Lombok Barat no 26 Tahun 2019")
-                printama.setNormalText()
-                printama.printTextlnBold(Printama.CENTER, "RETRIBUSI Kebersihan PASAR")
-                printama.addNewLine(1)
-                printama.printTextlnWideBold(Printama.CENTER, "TGL : $tanggal")
-                printama.addNewLine(1)
-                printama.printTextlnWideTallBold(Printama.CENTER, "*RP.${tarif}*")
-                printama.addNewLine(1)
-                printama.printTextlnBold(Printama.CENTER, "*Bukti Sah Pembayaran")
-                printama.printTextlnBold(Printama.CENTER, "Retribusi Kebersihan Pasar*")
-                printama.addNewLine(1)
-                printama.printDashedLine()
-                printama.addNewLine(2)
-                printama.close()
-
-                viewModel.insertTransaksi(transaksi)
-                Log.d(
-                    "coba", "insertTransaksi: " +
-                            "${transaksi.jenisPedagang} ${transaksi.jumlahBayar} " +
-                            "${transaksi.tanggal} ${transaksi.waktu}"
-                )
+            Printama.with(this@KontribusiPasarActivity).connect({ printama: Printama ->
+                if (printama.isConnected) {
+                    Log.d("coba", "printReceipt: ${printama.isConnected}")
+                    printama.printImage(logo, 256)
+                    printama.addNewLine(1)
+                    printama.setNormalText()
+                    printama.printTextlnBold(Printama.CENTER, "PRO System")
+                    printama.setSmallText()
+                    printama.printTextln(
+                        Printama.CENTER,
+                        "Perbup Lombok Barat no 26 Tahun 2019"
+                    )
+                    printama.setNormalText()
+                    printama.printTextlnBold(Printama.CENTER, "RETRIBUSI Kebersihan PASAR")
+                    printama.addNewLine(1)
+                    printama.printTextlnWideBold(Printama.CENTER, "TGL : $tanggal")
+                    printama.addNewLine(1)
+                    printama.printTextlnWideTallBold(Printama.CENTER, "*RP.${tarif}*")
+                    printama.addNewLine(1)
+                    printama.printTextlnBold(Printama.CENTER, "*Bukti Sah Pembayaran")
+                    printama.printTextlnBold(Printama.CENTER, "Retribusi Kebersihan Pasar*")
+                    printama.addNewLine(1)
+                    printama.printDashedLine()
+                    printama.addNewLine(2)
+                    printama.close()
+                    viewModel.insertTransaksi(transaksi)
+                    Log.d("coba", "printReceipt: $transaksi")
+                } else {
+                    showMessage("Printer gagal terhubung")
+                }
+                hideLoadingState()
             }) { message: String? -> showMessage(message) }
         } else {
             showMessage("Printer belum terhubung")
@@ -138,7 +167,7 @@ class KontribusiPasarActivity : AppCompatActivity() {
     }
 
     private fun showMessage(message: String?) {
-        Toast.makeText(this, message ?: "unknown error", Toast.LENGTH_SHORT).show()
+        Toast.makeText(applicationContext, message ?: "unknown error", Toast.LENGTH_SHORT).show()
     }
 
     private fun showResult(printerName: String) {
@@ -163,7 +192,25 @@ class KontribusiPasarActivity : AppCompatActivity() {
             waktu = waktu
         )
 
-        printReceipt(tanggalPrint, tarif, transaksi)
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Cetak Transaksi ${getTypeGoodName(type)}")
+        builder.setMessage("Anda yakin ingin mencetak transaksi ${getTypeGoodName(type)}?")
+        builder.setPositiveButton("Cetak") { _, _ ->
+            printReceipt(tanggalPrint, tarif, transaksi)
+        }
+
+        builder.setNegativeButton("Batalkan") { _, _ ->
+            Toast.makeText(applicationContext, "batalkan print", Toast.LENGTH_SHORT).show()
+        }
+        builder.show()
+    }
+
+    private fun showLoadingState() {
+        binding.progressBar.visibility = View.VISIBLE
+    }
+
+    private fun hideLoadingState() {
+        binding.progressBar.visibility = View.INVISIBLE
     }
 
     private fun observeCount() {
