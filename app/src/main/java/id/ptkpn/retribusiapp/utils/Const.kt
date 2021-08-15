@@ -9,6 +9,7 @@ const val TRANSAKSI_DB = "transaksi.db"
 const val TRANSAKSI_TABLE = "transaksi"
 const val JURU_TAGIH_NAME = "juru_tagih_name"
 const val JURU_TAGIH_ID = "juru_tagih_id"
+const val IS_UPLOADED = "is_uploaded"
 
 const val USERS = "users"
 const val ROLE ="roles"

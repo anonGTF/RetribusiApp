@@ -15,6 +15,8 @@ class MainMenuActivity : AppCompatActivity() {
         binding = ActivityMainMenuBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        actionBar?.title = "Main Menu"
+
         binding.menuKebersihanPasar.setOnClickListener {
             intent = Intent(this, KontribusiPasarActivity::class.java)
             startActivity(intent)

@@ -4,9 +4,10 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModelProvider
@@ -32,7 +33,6 @@ class HistoryActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityHistoryBinding
     private lateinit var viewModel: HistoryViewModel
-    private var isUploaded = false
     private var isExported = false
     private var isReset = false
     private var jumlahBakulan = 0
@@ -45,6 +45,10 @@ class HistoryActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityHistoryBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        supportActionBar?.title = "History"
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowHomeEnabled(true)
 
         val factory = ViewModelFactory.getInstance(this)
         viewModel = ViewModelProvider(this, factory).get(HistoryViewModel::class.java)
@@ -67,15 +71,46 @@ class HistoryActivity : AppCompatActivity() {
         }
 
         binding.btnReset.setOnClickListener {
-            isReset = true
-            binding.etTotalKeseluruhan.setText("")
-            viewModel.deleteAllTransaksi()
-            auth.signOut()
-            isUploaded = false
-            isExported = false
-            intent = Intent(this, LoginActivity::class.java)
-            startActivity(intent)
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("Reset Transaksi")
+            builder.setMessage("Anda yakin ingin mereset transaksi?")
+            builder.setPositiveButton("Reset") { _, _ ->
+                reset()
+            }
+
+            builder.setNegativeButton("Batalkan") { _, _ ->
+                Toast.makeText(applicationContext, "batalkan print", Toast.LENGTH_SHORT).show()
+            }
+            builder.show()
         }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    private fun reset() {
+        isReset = true
+        binding.etTotalKeseluruhan.setText("")
+        viewModel.deleteAllTransaksi()
+        auth.signOut()
+        val sharedPref =getSharedPreferences(PREF_KEY, MODE_PRIVATE)
+        with(sharedPref.edit()) {
+            putString(JURU_TAGIH_NAME, "")
+            putString(JURU_TAGIH_ID, "")
+            putString(TRANSAKSI_ID, "")
+            putBoolean(IS_UPLOADED, false)
+            apply()
+        }
+        isExported = false
+        intent = Intent(this, LoginActivity::class.java)
+        startActivity(intent)
     }
 
     private fun getFileName(format: String): String {
@@ -85,13 +120,15 @@ class HistoryActivity : AppCompatActivity() {
     }
 
     private fun exportLocalDb() {
-        if (isUploaded) {
+        if (getSharedPreferences(PREF_KEY, MODE_PRIVATE).getBoolean(IS_UPLOADED, false)) {
+            val tarifBakulan = getSharedPreferences(PREF_KEY, MODE_PRIVATE).getInt(BAKULAN, 0)
+            val tarifPakaiMeja = getSharedPreferences(PREF_KEY, MODE_PRIVATE).getInt(PAKAI_MEJA, 0)
+            val tarifPakaiKios = getSharedPreferences(PREF_KEY, MODE_PRIVATE).getInt(PAKAI_KIOS, 0)
             val userName = getSharedPreferences(PREF_KEY, MODE_PRIVATE).getString(JURU_TAGIH_NAME, "penagih_default_name")
             val csvFile = generateFile(this, getFileName("csv"))
             if (csvFile != null) {
                 viewModel.getAllTransaksi().observe(this@HistoryActivity, { transaksiList ->
                     if (!isReset) {
-                        Log.d("coba", "exportLocalDb: $isExported $isUploaded ${getCurrentDateTime().toString("HH:mm:ss")}")
                         csvWriter().open(csvFile, append = false) {
                             // Header
                             writeRow("sep=,")
@@ -117,6 +154,18 @@ class HistoryActivity : AppCompatActivity() {
                                 )
                                 writeRow(data)
                             }
+                            writeRow("*", "Total bakulan", "${tarifBakulan * jumlahBakulan}")
+                            writeRow("*", "Total pakai meja", "${tarifPakaiMeja * jumlahPakaiMeja}")
+                            writeRow("*", "Total pakai kios", "${tarifPakaiKios * jumlahPakaiKios}")
+                            writeRow("*", "Total keseluruhan",
+                                "${tarifBakulan * jumlahBakulan 
+                                        + tarifPakaiMeja * jumlahPakaiMeja 
+                                        + tarifPakaiKios * jumlahPakaiKios}")
+                            writeRow("*", "Jumlah disetor",
+                                binding.etJumlahDisetor.text.toString().replace(".", "")
+                            )
+                            writeRow("*", "Selisih",
+                                binding.etSelisih.text.toString().replace(".", ""))
                             showMessage("CSV File has been generated")
                             isExported = true
                         }
@@ -188,7 +237,7 @@ class HistoryActivity : AppCompatActivity() {
                     USER_ID to userId
             )
 
-            if (!isUploaded) {
+            if (!getSharedPreferences(PREF_KEY, MODE_PRIVATE).getBoolean(IS_UPLOADED, false)) {
                 db.collection(TRANSAKSI).add(docData).addOnSuccessListener { doc ->
                     val sharedPref = getSharedPreferences(PREF_KEY, MODE_PRIVATE)
                     with(sharedPref.edit()) {
@@ -207,7 +256,9 @@ class HistoryActivity : AppCompatActivity() {
                                 doc.collection(DETAIL_TRANSAKSI).add(transaksiData)
                             }
                             showMessage("Upload data berhasil")
-                            isUploaded = true
+                            getSharedPreferences(PREF_KEY, MODE_PRIVATE).edit()
+                                .putBoolean(IS_UPLOADED, true)
+                                .apply()
                         }
                     })
                 } .addOnFailureListener {
