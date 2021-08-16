@@ -222,7 +222,7 @@ class HistoryActivity : AppCompatActivity() {
         } else {
             Uri.fromFile(zipFile)
         }
-        val number = "6285746156526"
+        val number = "6280000000000"
         val sendIntent = Intent()
         sendIntent.action = Intent.ACTION_SEND
         sendIntent.type = "application/*"

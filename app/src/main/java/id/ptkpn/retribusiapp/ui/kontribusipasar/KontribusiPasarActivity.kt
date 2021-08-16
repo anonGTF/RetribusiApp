@@ -12,7 +12,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import com.anggastudio.printama.Printama
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -26,7 +25,6 @@ import id.ptkpn.retribusiapp.utils.Utils.getCurrentDateTime
 import id.ptkpn.retribusiapp.utils.Utils.getTypeGoodName
 import id.ptkpn.retribusiapp.utils.Utils.toString
 import kotlinx.coroutines.*
-import kotlinx.coroutines.withTimeoutOrNull
 
 
 class KontribusiPasarActivity : AppCompatActivity() {
@@ -46,7 +44,6 @@ class KontribusiPasarActivity : AppCompatActivity() {
 
         val factory = ViewModelFactory.getInstance(this)
         viewModel = ViewModelProvider(this, factory).get(KontribusiPasarViewModel::class.java)
-        observeCount()
 
         binding.cetakBakulan.setOnClickListener {
             insertTransaksi(BAKULAN)
@@ -226,27 +223,5 @@ class KontribusiPasarActivity : AppCompatActivity() {
 
     private fun hideLoadingState() {
         binding.progressBar.visibility = View.INVISIBLE
-    }
-
-    private fun observeCount() {
-        viewModel.countBakulan().observe(this, { count ->
-            val countText = "${count}x"
-            binding.countBakulan.text = countText
-        })
-
-        viewModel.countPakaiKios().observe(this, { count ->
-            val countText = "${count}x"
-            binding.countPakaiKios.text = countText
-        })
-
-        viewModel.countPakaiMeja().observe(this, { count ->
-            val countText = "${count}x"
-            binding.countPakaiMeja.text = countText
-        })
-
-        viewModel.countAll().observe(this, { count ->
-            val countText = "${count}x"
-            binding.countTotal.text = countText
-        })
     }
 }
