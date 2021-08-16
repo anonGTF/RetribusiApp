@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
@@ -13,10 +14,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.anggastudio.printama.Printama
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import id.ptkpn.retribusiapp.R
 import id.ptkpn.retribusiapp.databinding.ActivityKontribusiPasarBinding
 import id.ptkpn.retribusiapp.localdb.Transaksi
 import id.ptkpn.retribusiapp.ui.history.HistoryAuthActivity
+import id.ptkpn.retribusiapp.ui.login.LoginActivity
 import id.ptkpn.retribusiapp.utils.*
 import id.ptkpn.retribusiapp.utils.Utils.getCurrentDateTime
 import id.ptkpn.retribusiapp.utils.Utils.getTypeGoodName
@@ -30,6 +34,7 @@ class KontribusiPasarActivity : AppCompatActivity() {
     private lateinit var binding: ActivityKontribusiPasarBinding
     private lateinit var viewModel: KontribusiPasarViewModel
     private var connectedPrinter: BluetoothDevice? = null
+    private val auth = Firebase.auth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,11 +76,21 @@ class KontribusiPasarActivity : AppCompatActivity() {
         getSavedPrinter()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu, menu)
+        return true
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
                 onBackPressed()
                 return true
+            }
+            R.id.action_logout -> {
+                auth.signOut()
+                intent = Intent(this, LoginActivity::class.java)
+                startActivity(intent)
             }
         }
         return super.onOptionsItemSelected(item)

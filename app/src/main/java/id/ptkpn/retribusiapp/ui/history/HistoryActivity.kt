@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
@@ -15,6 +16,7 @@ import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import id.ptkpn.retribusiapp.R
 import id.ptkpn.retribusiapp.databinding.ActivityHistoryBinding
 import id.ptkpn.retribusiapp.ui.login.LoginActivity
 import id.ptkpn.retribusiapp.utils.*
@@ -85,32 +87,44 @@ class HistoryActivity : AppCompatActivity() {
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu, menu)
+        return true
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
                 onBackPressed()
                 return true
             }
+            R.id.action_logout -> {
+                auth.signOut()
+                val sharedPref =getSharedPreferences(PREF_KEY, MODE_PRIVATE)
+                with(sharedPref.edit()) {
+                    putString(JURU_TAGIH_NAME, "")
+                    putString(JURU_TAGIH_ID, "")
+                    putString(TRANSAKSI_ID, "")
+                    putBoolean(IS_UPLOADED, false)
+                    apply()
+                }
+                isExported = false
+                intent = Intent(this, LoginActivity::class.java)
+                startActivity(intent)
+            }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        auth.signOut()
     }
 
     private fun reset() {
         isReset = true
         binding.etTotalKeseluruhan.setText("")
         viewModel.deleteAllTransaksi()
-        auth.signOut()
-        val sharedPref =getSharedPreferences(PREF_KEY, MODE_PRIVATE)
-        with(sharedPref.edit()) {
-            putString(JURU_TAGIH_NAME, "")
-            putString(JURU_TAGIH_ID, "")
-            putString(TRANSAKSI_ID, "")
-            putBoolean(IS_UPLOADED, false)
-            apply()
-        }
-        isExported = false
-        intent = Intent(this, LoginActivity::class.java)
-        startActivity(intent)
     }
 
     private fun getFileName(format: String): String {
