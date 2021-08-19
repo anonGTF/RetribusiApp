@@ -41,6 +41,7 @@ class KontribusiPasarActivity : AppCompatActivity() {
         supportActionBar?.title = "Kontribusi Pasar"
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
+        checkLogin()
 
         val factory = ViewModelFactory.getInstance(this)
         viewModel = ViewModelProvider(this, factory).get(KontribusiPasarViewModel::class.java)
@@ -101,12 +102,22 @@ class KontribusiPasarActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        checkLogin()
         getSavedPrinter()
     }
 
     override fun onRestart() {
         super.onRestart()
+        checkLogin()
         getSavedPrinter()
+    }
+
+    private fun checkLogin() {
+        if (auth.currentUser == null) {
+            intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+            showMessage("Anda harus login terlebih dahulu")
+        }
     }
 
     private fun getSavedPrinter() {
