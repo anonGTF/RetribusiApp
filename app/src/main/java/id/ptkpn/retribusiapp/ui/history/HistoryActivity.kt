@@ -52,6 +52,8 @@ class HistoryActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
 
+        checkLogin()
+
         val factory = ViewModelFactory.getInstance(this)
         viewModel = ViewModelProvider(this, factory).get(HistoryViewModel::class.java)
 
@@ -119,6 +121,24 @@ class HistoryActivity : AppCompatActivity() {
     override fun onBackPressed() {
         super.onBackPressed()
         auth.signOut()
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        checkLogin()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        checkLogin()
+    }
+
+    private fun checkLogin() {
+        if (auth.currentUser == null) {
+            intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+           showMessage("Anda harus login terlebih dahulu")
+        }
     }
 
     private fun reset() {
@@ -195,20 +215,27 @@ class HistoryActivity : AppCompatActivity() {
     }
 
     private fun compressAndEncryptFile(csvFile: File) {
-        try {
-            val zos = MyZipOutputStream()
-            val zipFile = zos.initialize(generateFile(this, getFileName("zip")),
+        var zipPassword = "test123"
+        db.collection(CONFIG).document("1").get().addOnSuccessListener {
+            zipPassword = it.data?.get(ZIP_PASSWORD).toString()
+        }.addOnFailureListener {
+            showMessage("document zip password pada database tidak ditemukan, zip menggunakan password default")
+        }.addOnCompleteListener {
+            try {
+                val zos = MyZipOutputStream()
+                val zipFile = zos.initialize(generateFile(this, getFileName("zip")),
                     listOf(csvFile),
-                    "test123".toCharArray(),
+                    zipPassword.toCharArray(),
                     CompressionMethod.STORE,
                     true,
                     EncryptionMethod.AES,
                     AesKeyStrength.KEY_STRENGTH_256
-            )
-            showMessage("file encrypted")
-            sendToWhatsapp(zipFile)
-        } catch (e: Exception) {
-            showMessage(e.localizedMessage ?: "unknown error")
+                )
+                showMessage("file encrypted")
+                sendToWhatsapp(zipFile)
+            } catch (e: Exception) {
+                showMessage(e.localizedMessage ?: "unknown error")
+            }
         }
     }
 
